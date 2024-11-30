@@ -3,21 +3,31 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Canvas, FabricImage } from 'fabric';
 
-export function ImageUploader({ onImageSelect, monthNumber, base64Image }) {
+const BACKGROUND_WIDTH = 1872;
+const BACKGROUND_HEIGHT = 1570;
+
+export function ImageUploader() {
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
   const canvasRef = useRef(null);
   const fabricCanvasRef = useRef(null);
+  const containerRef = useRef(null)
 
   useEffect(() => {
     // Initialize Fabric canvas
-    if (canvasRef.current && !fabricCanvasRef.current) {
-      fabricCanvasRef.current = new Canvas(canvasRef.current, {
-        width: 500,
-        height: 500,
-        backgroundColor: '#f0f0f0',
-      });
+    if (canvasRef.current && !fabricCanvasRef.current && imagePreview) {
+      const container = containerRef.current;
+      const containerWidth = container.clientWidth;
+      const containerHeight = container.clientHeight;
 
+      fabricCanvasRef.current = new Canvas(canvasRef.current, {
+        width: containerWidth,
+        height: containerHeight,
+        backgroundImage: new FabricImage("test-background", {
+          scaleX: containerWidth / BACKGROUND_WIDTH,
+          scaleY: containerHeight / BACKGROUND_HEIGHT,
+        }),
+      });
     }
 
     return () => {
@@ -27,13 +37,6 @@ export function ImageUploader({ onImageSelect, monthNumber, base64Image }) {
       }
     };
   }, [imagePreview]);
-
-  // useEffect(() => {
-  //   if (base64Image && base64Image.startsWith('data:image/')) {
-  //     loadImageToCanvas(base64Image);
-  //   }
-  // }, [base64Image]);
-
 
   const loadImageToCanvas = async (imageSrc) => {
     if (!fabricCanvasRef.current) {
@@ -76,11 +79,7 @@ export function ImageUploader({ onImageSelect, monthNumber, base64Image }) {
 
   const handleFileSelect = (event) => {
     const file = event.target.files[0];
-    fabricCanvasRef.current = new Canvas(canvasRef.current, {
-      width: 500,
-      height: 500,
-      backgroundColor: '#f0f0f0',
-    });
+    fabricCanvasRef.current = new Canvas(canvasRef.current);
     setImagePreview(URL.createObjectURL(file));
     if (file && file.type.startsWith('image/')) {
       const imgUrl = URL.createObjectURL(file)
@@ -90,8 +89,14 @@ export function ImageUploader({ onImageSelect, monthNumber, base64Image }) {
 
   return (
     <div
-      className="relative w-full min-h-[500px] border-2 border-dashed rounded-lg p-4"
+      ref={containerRef}
+      className="relative w-full min-h-[500px] border-2 border-dashed rounded-lg p-4 aspect-[59/50]"
     >
+      {
+        containerRef.current && (
+      <img id="test-background" className='hidden' src="/background/Couple%20Calendar%20Background%20Template%20Black.png" alt="" />
+        )
+      }
       <input
         type="file"
         ref={fileInputRef}
@@ -108,7 +113,7 @@ export function ImageUploader({ onImageSelect, monthNumber, base64Image }) {
         </div>
       ) : (
         <div className="relative">
-          <canvas ref={canvasRef} />
+          <canvas className='' ref={canvasRef} />
         </div>
       )}
     </div>

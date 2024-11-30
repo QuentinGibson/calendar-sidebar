@@ -41,13 +41,11 @@ export default function Calendar() {
         Create Your Calendar
       </h1>
 
-      <div className="grid gap-6">
+      <div className="grid gap-6 w-full justify-center">
         {months.map((month, index) => (
-          <div key={month} className="border rounded-lg p-4">
+          <div key={month} className="border rounded-lg p-4 max-w-[700px]">
             <h2 className="text-xl font-semibold mb-4">{month}</h2>
             <ImageUploader
-              monthNumber={index + 1}
-              onImageSelect={handleImageSelect}
             />
           </div>
         ))}
