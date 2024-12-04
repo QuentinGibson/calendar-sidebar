@@ -6,7 +6,7 @@ import { Canvas, FabricImage } from 'fabric';
 const BACKGROUND_WIDTH = 1872;
 const BACKGROUND_HEIGHT = 1570;
 
-export function ImageUploader() {
+export function ImageUploader({ handleImageSelect }) {
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
   const canvasRef = useRef(null);
@@ -52,9 +52,11 @@ export function ImageUploader() {
 
     // Scale image to fit canvas while maintaining aspect ratio
     const canvas = fabricCanvasRef.current;
+    const scaleX = (canvas.width - 200) / img.width
+    const scaleY = (canvas.height - 200) / img.height
     const scale = Math.min(
-      (canvas.width - 100) / img.width,
-      (canvas.height - 100) / img.height
+      scaleX,
+      scaleY
     );
 
 
@@ -72,6 +74,39 @@ export function ImageUploader() {
       padding: 5,
       rotatingPointOffset: 40,
     });
+
+    img.on('modified', () => {
+      const updatedWidth = img.getScaledWidth();
+      const updatedHeight = img.getScaledHeight();
+      const updatedLeft = img.left;
+      const updatedTop = img.top;
+
+ const canvasHeight = fabricCanvasRef.current.height;
+  const canvasWidth = fabricCanvasRef.current.width;
+  // Calculate normalized positions from edges
+  const normalizedLeft = Math.min(Math.max(
+    updatedLeft / canvasWidth,
+    0
+  ), 1);
+
+  const normalizedTop = Math.min(Math.max(
+    updatedTop / canvasHeight,
+    0
+  ), 1);
+
+  // Scale to background dimensions
+  const scaledLeft = Math.round(normalizedLeft * BACKGROUND_WIDTH);
+  const scaledTop = Math.round(normalizedTop * BACKGROUND_HEIGHT);
+
+  console.log('Updated dimensions:', {
+    scaledLeft, // Will be between 0-1872
+    scaledTop,  // Will be between 0-1570
+    width: updatedWidth / scale,
+    height: updatedHeight / scale,
+    scale: scale,
+  });
+    })
+
     fabricCanvasRef.current.add(img);
     fabricCanvasRef.current.centerObject(img)
 
@@ -83,9 +118,9 @@ export function ImageUploader() {
     setImagePreview(URL.createObjectURL(file));
     if (file && file.type.startsWith('image/')) {
       const imgUrl = URL.createObjectURL(file)
-        loadImageToCanvas(imgUrl);
-      };
-    }
+      loadImageToCanvas(imgUrl);
+    };
+  }
 
   return (
     <div
@@ -94,7 +129,7 @@ export function ImageUploader() {
     >
       {
         containerRef.current && (
-      <img id="test-background" className='hidden' src="/background/Couple%20Calendar%20Background%20Template%20Black.png" alt="" />
+          <img id="test-background" className='hidden' src="/background/Couple%20Calendar%20Background%20Template%20Black.png" alt="" />
         )
       }
       <input

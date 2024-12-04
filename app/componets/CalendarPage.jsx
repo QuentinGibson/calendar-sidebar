@@ -42,10 +42,11 @@ export default function Calendar() {
       </h1>
 
       <div className="grid gap-6 w-full justify-center">
-        {months.map((month, index) => (
+        {months.map((month) => (
           <div key={month} className="border rounded-lg p-4 max-w-[700px]">
             <h2 className="text-xl font-semibold mb-4">{month}</h2>
             <ImageUploader
+              handleImageSelect={handleImageSelect}
             />
           </div>
         ))}
