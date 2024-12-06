@@ -1,16 +1,20 @@
 'use client'
+
+import {useFabricCanvas} from '../hooks/useFabricCanvas';
+import { useRef, useEffect } from 'react';
 import { Canvas, FabricImage, Rect } from 'fabric';
-import { useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 
-const BACKGROUND_WIDTH = 1872; const BACKGROUND_HEIGHT = 1570;
+const BACKGROUND_WIDTH = 1872;
+const BACKGROUND_HEIGHT = 1570;
 
-// interface useFabricCanvasProps {
-//   canvasRef: React.RefObject<HTMLCanvasElement>;
-//   containerRef: React.RefObject<HTMLDivElement>;
-// }
+export default function CustomCanvas({index}) {
 
-export function useFabricCanvas({ canvasRef,  containerRef, index } ) {
   const fabricCanvasRef = useRef(null);
+  const canvasRef = useRef(null);
+  const containerRef = useRef(null)
+
+  const pathname = usePathname();
 
   useEffect(() => {
     const container = containerRef.current;
@@ -54,16 +58,38 @@ export function useFabricCanvas({ canvasRef,  containerRef, index } ) {
       localStorage.setItem(`canvas-${index}`, JSON.stringify(fabricCanvasRef.current.toJSON()));
     }
 
+    const isSavedVersion = () => {
+      const localCanvas = localStorage.getItem(`canvas-${index}`);
+      return !!localCanvas
+    }
+
 
     backgroundImageElement.onload = () => {
-      initFabricCanvas();
-      addRectangle();
+      if (!fabricCanvasRef.current) {
+        initFabricCanvas();
+        addRectangle();
+      }
+
+      if (isSavedVersion) {
+        fabricCanvasRef.current.loadFromJSON(localStorage.getItem(`canvas-${index}`))
+      }
     }
 
 
     return () => {
       disposeCanvas();
     };
-  }, []);
-}
+  }, [pathname]);
 
+  return (
+    <div
+      ref={containerRef}
+      className="relative w-full min-h-[500px] border-2 border-dashed rounded-lg p-4 aspect-[59/50]"
+    >
+      <div className="relative">
+        <canvas className='' ref={canvasRef} />
+      </div>
+    </div>
+  )
+
+}
