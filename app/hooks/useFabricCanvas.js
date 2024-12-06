@@ -36,6 +36,7 @@ export function useFabricCanvas({ canvasRef,  containerRef } ) {
           scaleY: containerHeight / BACKGROUND_HEIGHT,
         }),
       });
+    fabricCanvasRef.current.on('object:modified', saveStateToLocalStorage);
     }
 
     const addRectangle = () => {
@@ -50,15 +51,16 @@ export function useFabricCanvas({ canvasRef,  containerRef } ) {
       fabricCanvasRef.current.add(rect);
     }
 
-    const rerenderCanvas = () => {
-      fabricCanvasRef.current.requestRenderAll();
+    const saveStateToLocalStorage = () => {
+      localStorage.setItem('canvas', JSON.stringify(fabricCanvasRef.current.toJSON()));
     }
+
 
     backgroundImageElement.onload = () => {
       initFabricCanvas();
       addRectangle();
-      rerenderCanvas();
     }
+
 
     return () => {
       disposeCanvas();
