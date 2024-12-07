@@ -88,7 +88,7 @@ export default function CustomCanvas({ index }) {
   return (
     <div
       ref={containerRef}
-      className="relative w-full min-h-[500px] border-2 border-dashed rounded-lg p-4 aspect-[59/50]"
+      className="relative w-full min-h-[500px] rounded-lg aspect-[59/50]"
     >
       <div className="relative">
         <canvas className='' ref={canvasRef} />

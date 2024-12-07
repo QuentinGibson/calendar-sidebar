@@ -42,11 +42,8 @@ export default function CanvasContainer() {
   }
 
   return (
-    <div className="grid gap-6 w-full justify-center">
-      <div className="border rounded-lg p-4 max-w-[700px]">
-        <h2 className="text-xl font-semibold mb-4">{months[month]}</h2>
-        {<CustomCanvas index={month} />}
-      </div>
+    <div className="grid gap-6 w-full justify-center items-center h-full">
+      {<CustomCanvas index={month} />}
       {/* <div className='flex justify-between'>
         <Button><Link href={previousLink()}>Previous</Link></Button>
         <Button><Link href={nextLink()}>Next</Link></Button>
