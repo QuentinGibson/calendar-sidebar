@@ -1,6 +1,5 @@
 'use client'
 
-import {useFabricCanvas} from '../hooks/useFabricCanvas';
 import { useRef, useEffect } from 'react';
 import { Canvas, FabricImage, Rect } from 'fabric';
 import { usePathname } from 'next/navigation';
@@ -8,7 +7,7 @@ import { usePathname } from 'next/navigation';
 const BACKGROUND_WIDTH = 1872;
 const BACKGROUND_HEIGHT = 1570;
 
-export default function CustomCanvas({index}) {
+export default function CustomCanvas({ index }) {
 
   const fabricCanvasRef = useRef(null);
   const canvasRef = useRef(null);
@@ -31,15 +30,17 @@ export default function CustomCanvas({index}) {
     }
 
     const initFabricCanvas = () => {
-      fabricCanvasRef.current = new Canvas(canvasRef.current, {
-        width: containerWidth,
-        height: containerHeight,
-        backgroundImage: new FabricImage(backgroundImageElement, {
-          scaleX: containerWidth / BACKGROUND_WIDTH,
-          scaleY: containerHeight / BACKGROUND_HEIGHT,
-        }),
-      });
-    fabricCanvasRef.current.on('object:modified', saveStateToLocalStorage);
+      if (!fabricCanvasRef.current) {
+        fabricCanvasRef.current = new Canvas(canvasRef.current, {
+          width: containerWidth,
+          height: containerHeight,
+          backgroundImage: new FabricImage(backgroundImageElement, {
+            scaleX: containerWidth / BACKGROUND_WIDTH,
+            scaleY: containerHeight / BACKGROUND_HEIGHT,
+          }),
+        });
+      }
+      fabricCanvasRef.current.on('object:modified', saveStateToLocalStorage);
     }
 
     const addRectangle = () => {
@@ -64,14 +65,17 @@ export default function CustomCanvas({index}) {
     }
 
 
-    backgroundImageElement.onload = () => {
+    backgroundImageElement.onload = async () => {
+      console.log("Onload firing")
       if (!fabricCanvasRef.current) {
         initFabricCanvas();
         addRectangle();
       }
 
-      if (isSavedVersion) {
-        fabricCanvasRef.current.loadFromJSON(localStorage.getItem(`canvas-${index}`))
+      if (isSavedVersion()) {
+        await fabricCanvasRef.current.loadFromJSON(localStorage.getItem(`canvas-${index}`)).then(canvas => {
+          canvas.requestRenderAll();
+        })
       }
     }
 

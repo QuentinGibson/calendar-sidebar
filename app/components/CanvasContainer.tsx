@@ -47,10 +47,10 @@ export default function CanvasContainer() {
         <h2 className="text-xl font-semibold mb-4">{months[month]}</h2>
         {<CustomCanvas index={month} />}
       </div>
-      <div className='flex justify-between'>
+      {/* <div className='flex justify-between'>
         <Button><Link href={previousLink()}>Previous</Link></Button>
         <Button><Link href={nextLink()}>Next</Link></Button>
-      </div>
+      </div> */}
     </div>
   )
 }
