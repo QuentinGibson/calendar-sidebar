@@ -1,9 +1,12 @@
 import CanvasContainer from './CanvasContainer';
+import { FabricCanvasProvider } from './FabricCanvasProvider';
 
 export default async function Calendar() {
   return (
-    <div className="container mx-auto px-4 h-screen">
-      <CanvasContainer />
+    <div className="container h-screen">
+      <FabricCanvasProvider>
+        <CanvasContainer />
+      </FabricCanvasProvider>
     </div>
   );
 }

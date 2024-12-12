@@ -1,14 +1,19 @@
 import MenuButton from "@/app/components/MenuButton"
 import {ArrowUpFromLine, Save, FileImage, RotateCcw} from "lucide-react"
 
-export default function CanvasMenu() {
+interface CanvasMenuProps  {
+  handleIndexReset: () => void
+  handleSave: () => void
+}
+
+export default function CanvasMenu({handleIndexReset, handleSave}: CanvasMenuProps) {
   return (
     <div className="h-screen bg-slate-700 absolute">
       <div className="flex flex-col">
         <MenuButton icon={<ArrowUpFromLine />} />
-        <MenuButton icon={<Save />} />
+        <MenuButton onClick={handleSave} icon={<Save />} />
         <MenuButton icon={<FileImage />} />
-        <MenuButton icon={<RotateCcw />} />
+        <MenuButton onClick={handleIndexReset} icon={<RotateCcw />} />
       </div>
     </div>
   )
