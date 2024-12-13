@@ -28,6 +28,8 @@ export default function CanvasContainer() {
     const containerElement = containerRef.current;
     if (!fabricCanvas || !containerElement) return
 
+    clearImages()
+
     const containerWidth = containerElement.clientWidth;
     const containerHeight = containerElement.clientHeight;
     const uploadedImage = res[0]
@@ -47,6 +49,7 @@ export default function CanvasContainer() {
       })
       fabricCanvas.add(fabricImageLayer)
       fabricCanvas.centerObject(fabricImageLayer)
+      saveStateToLocalStorage()
     }
   }
 
