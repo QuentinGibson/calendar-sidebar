@@ -1,10 +1,12 @@
 "use client"
+
 import { useEffect, useRef } from 'react';
 import CustomCanvas from './CustomCanvas';
 import { useParams, usePathname } from 'next/navigation';
-import { Canvas, FabricImage, Rect } from 'fabric';
+import { Canvas, FabricImage } from 'fabric';
 import CanvasMenu from './CanvasMenu';
 import CanvasFooter from './CanvasFooter';
+import { ClientUploadedFileData } from 'uploadthing/types';
 
 const BACKGROUND_WIDTH = 1872;
 const BACKGROUND_HEIGHT = 1570;
@@ -21,6 +23,33 @@ export default function CanvasContainer() {
 
   const pathname = usePathname();
 
+  const handleImageUpload = (res: ClientUploadedFileData<{ uploadedBy: string }>[]) => {
+    const fabricCanvas = fabricCanvasRef.current
+    const containerElement = containerRef.current;
+    if (!fabricCanvas || !containerElement) return
+
+    const containerWidth = containerElement.clientWidth;
+    const containerHeight = containerElement.clientHeight;
+    const uploadedImage = res[0]
+    const imgElement = new Image()
+
+    imgElement.src = uploadedImage.appUrl
+
+
+    imgElement.onload = () => {
+      const fabricImageLayer = new FabricImage(imgElement, {
+        width: imgElement.naturalWidth,
+        height: imgElement.naturalHeight,
+        scaleX: containerWidth / BACKGROUND_WIDTH,
+        scaleY: containerHeight / BACKGROUND_HEIGHT,
+        left: 0,
+        top: 0
+      })
+      fabricCanvas.add(fabricImageLayer)
+      fabricCanvas.centerObject(fabricImageLayer)
+    }
+  }
+
   const saveStateToLocalStorage = () => {
     if (!fabricCanvasRef.current) return
     localStorage.setItem(
@@ -31,12 +60,24 @@ export default function CanvasContainer() {
 
   const deleteAllLocalStorage = () => {
     localStorage.clear()
+    window.location.reload()
   }
 
   const deleteIndexLocalStorage = () => {
     if (!fabricCanvasRef.current) return
     localStorage.removeItem(`canvas-${index}`)
     window.location.reload()
+  }
+
+  const clearImages = () => {
+    const fabricCanvas = fabricCanvasRef.current
+    if (!fabricCanvas) return
+
+    const fabricObjects =  fabricCanvas.getObjects()
+
+    for (let object of fabricObjects) {
+      fabricCanvas.remove(object)
+    }
   }
 
   useEffect(() => {
@@ -69,34 +110,20 @@ export default function CanvasContainer() {
           }),
         });
       }
+      fabricCanvasRef.current.renderAndReset()
       fabricCanvasRef.current.on('object:modified', saveStateToLocalStorage);
+
     }
-
-    const addRectangle = () => {
-      if (!fabricCanvasRef.current) return
-      const rect = new Rect({
-        width: 100,
-        height: 100,
-        fill: 'red',
-        left: 100,
-        top: 100,
-      });
-
-      fabricCanvasRef.current.add(rect);
-    }
-
 
     const isSavedVersion = () => {
       const localCanvas = localStorage.getItem(`canvas-${index}`);
       return !!localCanvas
     }
 
-
     backgroundImageElement.onload = async () => {
       console.log("Onload firing")
       if (!fabricCanvasRef.current) {
         initFabricCanvas();
-        addRectangle();
       }
 
       if (isSavedVersion()) {
@@ -109,17 +136,45 @@ export default function CanvasContainer() {
       }
     }
 
-
     return () => {
       disposeCanvas();
     };
   }, [pathname]);
 
+  const months = [
+    "Janurary",
+    "Feburary",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+  ]
+
+  const month = months[index]
+
   return (
-    <div className="grid gap-6 w-full justify-center items-center h-full">
-      <CanvasMenu handleSave={saveStateToLocalStorage} handleIndexReset={deleteIndexLocalStorage} />
+    <>
+      <CanvasMenu
+        handleSave={saveStateToLocalStorage}
+        handleIndexReset={deleteIndexLocalStorage}
+        handleFileUpload={handleImageUpload}
+        handleImageRemove={clearImages}
+      />
       <CanvasFooter handleReset={deleteAllLocalStorage} />
-      <CustomCanvas containerRef={containerRef} canvasRef={canvasRef}/>
-    </div>
+      <div className="flex flex-col gap-2 w-full justify-center items-center h-full relative">
+        <h1 className='text-white text-4xl font-semibold'>
+          {month}
+        </h1>
+        <div className='min-h-[500px] aspect-[59/50] z-10 rounded-lg'>
+          <CustomCanvas containerRef={containerRef} canvasRef={canvasRef} />
+        </div>
+      </div>
+    </>
   )
 }

@@ -30,7 +30,7 @@ export default function CanvasFooter({handleReset}: CanvasFooter) {
     console.log("Submit")
   }
   return (
-    <div className="absolute w-screen bg-slate-700 bottom-0 py-2 flex justify-end pr-10 gap-8">
+    <div className="absolute w-screen bg-slate-700 bottom-0 py-2 flex justify-end pr-10 gap-8 z-20">
       <FooterButton>
         <Link href={previousLink()}>Previous</Link>
       </FooterButton>
