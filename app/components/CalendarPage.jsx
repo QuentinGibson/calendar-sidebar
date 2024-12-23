@@ -3,7 +3,7 @@ import { FabricCanvasProvider } from './FabricCanvasProvider';
 
 export default async function Calendar() {
   return (
-    <div className="container h-screen">
+    <div className="h-screen">
       <FabricCanvasProvider>
         <CanvasContainer />
       </FabricCanvasProvider>

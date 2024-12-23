@@ -7,7 +7,7 @@ type MenuButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 export default function MenuButton({icon, ...buttonprops}: MenuButtonProps) {
   return (
     <>
-      <button {...buttonprops} className="bg-slate-700 text-white p-2 border-y-2 -my-2 py-8 flex items-center justify-center w-20">
+      <button {...buttonprops} className="bg-slate-700 text-white p-2  -my-2 py-8 flex items-center justify-center">
         {icon}
       </button>
     </>

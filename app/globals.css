@@ -70,3 +70,30 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+
+.calendar-container {
+  grid-template-areas:
+    "menu canvas options"
+    "menu canvas options"
+    "menu canvas options"
+    "footer footer footer";
+  grid-template-columns: 70px 7fr 2fr;
+}
+
+
+.grid-menu {
+  grid-area: menu;
+}
+
+.grid-canvas {
+  grid-area: canvas;
+}
+
+.grid-options {
+  grid-area: options;
+}
+
+.grid-footer {
+  grid-area: footer;
+}

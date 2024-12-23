@@ -1,5 +1,5 @@
 import MenuButton from "@/app/components/MenuButton"
-import { Save, RotateCcw, ImageOff } from "lucide-react"
+import { Save, RotateCcw, ImageOff, ImageUp } from "lucide-react"
 import { UploadButton } from "../utils/uploadthings"
 import { ClientUploadedFileData } from "uploadthing/types"
 
@@ -12,12 +12,12 @@ interface CanvasMenuProps {
 
 export default function CanvasMenu({ handleIndexReset, handleSave, handleFileUpload, handleImageRemove }: CanvasMenuProps) {
   return (
-    <div className="h-screen bg-slate-700 absolute left-0 z-20">
+    <div className=" bg-slate-700 grid-menu p-4">
       <div className="flex flex-col">
-        {/* <MenuButton icon={<ArrowUpFromLine />} /> */}
         <UploadButton
           endpoint="imageUploader"
-          className="py-8"
+          className="py-2 ut-button:w-full ut-allowed-content:hidden"
+          content={{ button: <ImageUp /> }}
           onClientUploadComplete={(res) => {
             // Do something with the response
             handleFileUpload(res)
@@ -25,7 +25,7 @@ export default function CanvasMenu({ handleIndexReset, handleSave, handleFileUpl
           }}
           onUploadError={(error: Error) => {
             // Do something with the error.
-            alert(`ERROR! ${error.message}`);
+            console.log(error, "error");
           }}
         />
         <MenuButton onClick={handleSave} icon={<Save />} />

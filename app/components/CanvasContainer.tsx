@@ -6,6 +6,7 @@ import { useParams, usePathname } from 'next/navigation';
 import { Canvas, FabricImage } from 'fabric';
 import CanvasMenu from './CanvasMenu';
 import CanvasFooter from './CanvasFooter';
+import UserOptions from './UserOptions';
 import { ClientUploadedFileData } from 'uploadthing/types';
 
 const BACKGROUND_WIDTH = 1872;
@@ -38,12 +39,27 @@ export default function CanvasContainer() {
     imgElement.src = uploadedImage.appUrl
 
 
+
+    /**
+     * After the image is loaded, create a new fabric image layer and
+     * add it to the canvas. Center the image on the canvas and save the state
+     * of the canvas to local storage.
+     */
     imgElement.onload = () => {
+
+      const containerWidthBoundry = containerElement.clientWidth - 200;
+      const containerHeightBoundry = containerElement.clientHeight - 200;
+
+      const scaleX = imgElement.naturalWidth > containerWidthBoundry ? containerWidthBoundry / imgElement.naturalWidth : 1;
+      const scaleY = imgElement.naturalHeight > containerHeightBoundry ? containerHeightBoundry / imgElement.naturalHeight : 1;
+
+      const scale = Math.min(scaleX, scaleY);
+
       const fabricImageLayer = new FabricImage(imgElement, {
         width: imgElement.naturalWidth,
         height: imgElement.naturalHeight,
-        scaleX: containerWidth / BACKGROUND_WIDTH,
-        scaleY: containerHeight / BACKGROUND_HEIGHT,
+        scaleX: scale,
+        scaleY: scale,
         left: 0,
         top: 0
       })
@@ -162,15 +178,14 @@ export default function CanvasContainer() {
   const month = months[index]
 
   return (
-    <>
+    <div className='grid calendar-container h-screen'>
       <CanvasMenu
         handleSave={saveStateToLocalStorage}
         handleIndexReset={deleteIndexLocalStorage}
         handleFileUpload={handleImageUpload}
         handleImageRemove={clearImages}
       />
-      <CanvasFooter handleReset={deleteAllLocalStorage} />
-      <div className="flex flex-col gap-2 w-full justify-center items-center h-full relative">
+      <div className="flex flex-col gap-2 w-full justify-center items-center relative grid-canvas">
         <h1 className='text-white text-4xl font-semibold'>
           {month}
         </h1>
@@ -178,6 +193,8 @@ export default function CanvasContainer() {
           <CustomCanvas containerRef={containerRef} canvasRef={canvasRef} />
         </div>
       </div>
-    </>
+      <UserOptions />
+      <CanvasFooter handleReset={deleteAllLocalStorage} />
+    </div>
   )
 }
