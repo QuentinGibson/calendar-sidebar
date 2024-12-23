@@ -1,13 +1,12 @@
+"use client"
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 
 interface CalendarSettingsProps {
-  settings: {
-    startMonth: string
-    theme: string
-    paperSize: string
-  }
+  settings: MonthlyCalendarSettings
   onSettingsChange: (newSettings: any) => void
+  
 }
 
 export default function CalendarSettings({ settings, onSettingsChange }: CalendarSettingsProps) {
@@ -17,14 +16,13 @@ export default function CalendarSettings({ settings, onSettingsChange }: Calenda
   ]
 
   const themes = ['Classic', 'Modern', 'Minimalist', 'Colorful']
-  const paperSizes = ['A4', 'A3', 'Letter', 'Legal']
 
   return (
     <div className="space-y-4">
       <div>
         <Label htmlFor="startMonth">Start Month</Label>
         <Select
-          value={settings.startMonth}
+          value={settings.monthTheme}
           onValueChange={(value) => onSettingsChange({ startMonth: value })}
         >
           <SelectTrigger id="startMonth">
@@ -41,9 +39,9 @@ export default function CalendarSettings({ settings, onSettingsChange }: Calenda
       </div>
 
       <div>
-        <Label htmlFor="theme">Theme</Label>
+        <Label htmlFor="theme">Monthly Quote</Label>
         <Select
-          value={settings.theme}
+          value={settings.customQuote || ""}
           onValueChange={(value) => onSettingsChange({ theme: value })}
         >
           <SelectTrigger id="theme">
@@ -53,25 +51,6 @@ export default function CalendarSettings({ settings, onSettingsChange }: Calenda
             {themes.map((theme) => (
               <SelectItem key={theme} value={theme}>
                 {theme}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div>
-        <Label htmlFor="paperSize">Paper Size</Label>
-        <Select
-          value={settings.paperSize}
-          onValueChange={(value) => onSettingsChange({ paperSize: value })}
-        >
-          <SelectTrigger id="paperSize">
-            <SelectValue placeholder="Select paper size" />
-          </SelectTrigger>
-          <SelectContent>
-            {paperSizes.map((size) => (
-              <SelectItem key={size} value={size}>
-                {size}
               </SelectItem>
             ))}
           </SelectContent>
