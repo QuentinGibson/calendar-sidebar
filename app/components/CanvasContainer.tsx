@@ -10,8 +10,7 @@ import UserOptions from './UserOptions';
 import { ClientUploadedFileData } from 'uploadthing/types';
 import { useCalendarStore } from '../utils/calendarStore';
 import { useQuoteStore } from '../utils/quoteStore';
-import { strictEqual } from 'assert';
-import { getEventListeners } from 'events';
+import { usePartnerStore } from '../utils/usePartnerStore';
 
 const BACKGROUND_WIDTH = 1872;
 const BACKGROUND_HEIGHT = 1570;
@@ -38,10 +37,13 @@ export default function CanvasContainer() {
   const getFabricQuote = useQuoteStore((store) => store.getFabricQuote)
   const setFabricQuote = useQuoteStore((store) => store.setFabricQuote)
 
+  const getFabricNames = usePartnerStore((state) => state.getFabricNames)
+  const setFabricNames = usePartnerStore((state) => state.setFabricNames)
+
   const pathname = usePathname();
 
-  const firstPartnerName = useCalendarStore((state) => state.firstPartnerName)
-  const secondPartnerName = useCalendarStore((state) => state.secondPartnerName)
+  const firstPartnerName = usePartnerStore((state) => state.firstPartner)
+  const secondPartnerName = usePartnerStore((state) => state.secondPartner)
   const backgroundImage = useCalendarStore((state) => state.monthlySettings[month].monthTheme)
 
 
@@ -184,7 +186,7 @@ export default function CanvasContainer() {
     const addNames = () => {
       const fabricCanvas = getFabricCanvas()
       if (!fabricCanvas) return
-      const fabricTextObject = new FabricText(`${firstPartnerName} & ${secondPartnerName}`, {
+      setFabricNames(new FabricText(`${firstPartnerName} & ${secondPartnerName}`, {
         fontSize: 32,
         fontWeight: "bold",
         lockMovementX: true,
@@ -200,10 +202,13 @@ export default function CanvasContainer() {
         hasControls: false,
         left: 100,
         top: 10,
-      })
+      }))
 
-      fabricCanvas.add(fabricTextObject)
-      fabricCanvas.centerObjectH(fabricTextObject)
+      const fabricNames = getFabricNames()
+      if (!fabricNames) return
+
+      fabricCanvas.add(fabricNames)
+      fabricCanvas.centerObjectH(fabricNames)
     }
 
     const isSavedVersion = () => {

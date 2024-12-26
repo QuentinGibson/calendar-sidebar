@@ -6,6 +6,7 @@ import { useCalendarStore } from '@/app/utils/calendarStore'
 import { Input } from './ui/input'
 import { useParams } from 'next/navigation'
 import { useQuoteStore } from '@/app/utils/quoteStore'
+import { usePartnerStore } from '@/app/utils/usePartnerStore'
 
 
 export default function CalendarSettings() {
@@ -39,11 +40,18 @@ export default function CalendarSettings() {
 
   const settings = useCalendarStore((state) => state.monthlySettings)
   const currentTheme = useCalendarStore((state) => state.monthlySettings[month].monthTheme)
-  const customQuote = useCalendarStore((state) => state.customQuote)
-
   const onThemeChange = useCalendarStore((state) => state.setMonthlyTheme)
-  const setText = useQuoteStore((state) => state.setText)
+
   const quoteText = useQuoteStore((state) => state.text)
+  const setText = useQuoteStore((state) => state.setText)
+
+  const getFirstPartner = usePartnerStore((state) => state.getFirstPartner)
+  const getSecondPartner = usePartnerStore((state) => state.getSecondPartner)
+  const firstPartner = getFirstPartner()
+  const secondPartner = getSecondPartner()
+
+  const setFirstPartner = usePartnerStore((state) => state.setFirstPartner)
+  const setSecondPartner = usePartnerStore((state) => state.setSecondPartner)
 
   return (
     <div className="space-y-4">
@@ -65,8 +73,16 @@ export default function CalendarSettings() {
           </SelectContent>
         </Select>
       </div>
-
+<div>
+        <Label htmlFor="theme">First Partner</Label>
+        <Input id="theme" defaultValue={firstPartner || ""}  onChange={(e) => setFirstPartner(e.target.value)} />
+      </div>
+<div>
+        <Label htmlFor="theme">Second Partner</Label>
+        <Input id="theme" defaultValue={secondPartner || ""}  onChange={(e) => setSecondPartner(e.target.value)} />
+      </div>
       <div>
+
         <Label htmlFor="theme">Quote</Label>
         <Input id="theme" defaultValue={quoteText || ""}  onChange={(e) => setText(e.target.value)} />
       </div>
