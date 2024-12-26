@@ -1,18 +1,9 @@
-"use client"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Button } from '@/components/ui/button'
 import { ChevronDown } from 'lucide-react'
 import CalendarSettings from './CalendarSettings'
 
-interface OptionsMenuProps {
-  calendarSettings: MonthlyCalendarSettings
-  onSettingsChange: (newSettings: Partial<MonthlyCalendarSettings>) => void
-}
-
-export default function OptionsMenu({
-  calendarSettings,
-  onSettingsChange,
-}: OptionsMenuProps) {
+export default function OptionsMenu() {
 
   return (
     <div className="text-white bg-slate-700 grid-options p-4 overflow-y-auto">
@@ -24,7 +15,7 @@ export default function OptionsMenu({
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <CalendarSettings settings={calendarSettings} onSettingsChange={onSettingsChange} />
+          <CalendarSettings />
         </CollapsibleContent>
       </Collapsible>
     </div>

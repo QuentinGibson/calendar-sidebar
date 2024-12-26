@@ -3,36 +3,55 @@
 import { useEffect, useRef } from 'react';
 import CustomCanvas from './CustomCanvas';
 import { useParams, usePathname } from 'next/navigation';
-import { Canvas, FabricImage } from 'fabric';
+import { Canvas, FabricImage, FabricText } from 'fabric';
 import CanvasMenu from './CanvasMenu';
 import CanvasFooter from './CanvasFooter';
 import UserOptions from './UserOptions';
 import { ClientUploadedFileData } from 'uploadthing/types';
+import { useCalendarStore } from '../utils/calendarStore';
+import { useQuoteStore } from '../utils/quoteStore';
+import { strictEqual } from 'assert';
+import { getEventListeners } from 'events';
 
 const BACKGROUND_WIDTH = 1872;
 const BACKGROUND_HEIGHT = 1570;
+
 
 export default function CanvasContainer() {
   const params = useParams()
   const monthStr = params.month as string
   const index = parseInt(monthStr)
 
+  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const month = months[index]
 
-  const fabricCanvasRef = useRef<Canvas | null>(null);
+
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null)
 
+  const setFabricCanvas = useCalendarStore((state) => state.setFabricCanvas)
+  const getFabricCanvas = useCalendarStore((state) => state.getFabricCanvas)
+
+
+  const getText = useQuoteStore((store) => store.getText)
+  const setText = useQuoteStore((store) => store.setText)
+  const getFabricQuote = useQuoteStore((store) => store.getFabricQuote)
+  const setFabricQuote = useQuoteStore((store) => store.setFabricQuote)
+
   const pathname = usePathname();
 
+  const firstPartnerName = useCalendarStore((state) => state.firstPartnerName)
+  const secondPartnerName = useCalendarStore((state) => state.secondPartnerName)
+  const backgroundImage = useCalendarStore((state) => state.monthlySettings[month].monthTheme)
+
+
   const handleImageUpload = (res: ClientUploadedFileData<{ uploadedBy: string }>[]) => {
-    const fabricCanvas = fabricCanvasRef.current
     const containerElement = containerRef.current;
+    const fabricCanvas = getFabricCanvas()
     if (!fabricCanvas || !containerElement) return
 
     clearImages()
 
-    const containerWidth = containerElement.clientWidth;
-    const containerHeight = containerElement.clientHeight;
     const uploadedImage = res[0]
     const imgElement = new Image()
 
@@ -70,10 +89,11 @@ export default function CanvasContainer() {
   }
 
   const saveStateToLocalStorage = () => {
-    if (!fabricCanvasRef.current) return
+    const fabricCanvas = getFabricCanvas()
+    if (!fabricCanvas) return
     localStorage.setItem(
       `canvas-${index}`,
-      JSON.stringify(fabricCanvasRef.current.toJSON())
+      JSON.stringify(fabricCanvas.toJSON())
     );
   }
 
@@ -83,16 +103,17 @@ export default function CanvasContainer() {
   }
 
   const deleteIndexLocalStorage = () => {
-    if (!fabricCanvasRef.current) return
+    const fabricCanvas = getFabricCanvas()
+    if (!fabricCanvas) return
     localStorage.removeItem(`canvas-${index}`)
     window.location.reload()
   }
 
   const clearImages = () => {
-    const fabricCanvas = fabricCanvasRef.current
+    const fabricCanvas = getFabricCanvas()
     if (!fabricCanvas) return
 
-    const fabricObjects =  fabricCanvas.getObjects()
+    const fabricObjects =  fabricCanvas.getObjects("image")
 
     for (let object of fabricObjects) {
       fabricCanvas.remove(object)
@@ -108,30 +129,81 @@ export default function CanvasContainer() {
     const containerHeight = containerElement.clientHeight;
 
     const backgroundImageElement = new Image(BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
-    backgroundImageElement.src = "/background/Couple%20Calendar%20Background%20Template%20Black.png";
+    backgroundImageElement.src = backgroundImage
 
 
 
     const disposeCanvas = () => {
-      if (fabricCanvasRef.current) {
-        fabricCanvasRef.current.dispose();
+      const fabricCanvas = getFabricCanvas()
+      if (fabricCanvas) {
+        fabricCanvas.dispose();
       }
     }
 
     const initFabricCanvas = () => {
-      if (!fabricCanvasRef.current) {
-        fabricCanvasRef.current = new Canvas(canvasElement, {
-          width: containerWidth,
-          height: containerHeight,
-          backgroundImage: new FabricImage(backgroundImageElement, {
-            scaleX: containerWidth / BACKGROUND_WIDTH,
-            scaleY: containerHeight / BACKGROUND_HEIGHT,
-          }),
-        });
-      }
-      fabricCanvasRef.current.renderAndReset()
-      fabricCanvasRef.current.on('object:modified', saveStateToLocalStorage);
+      const fabricCanvas = getFabricCanvas()
+      if (fabricCanvas) return
 
+      const canvas = new Canvas(canvasElement, {
+        width: containerWidth,
+        height: containerHeight,
+        backgroundImage: new FabricImage(backgroundImageElement, {
+          scaleX: containerWidth / BACKGROUND_WIDTH,
+          scaleY: containerHeight / BACKGROUND_HEIGHT,
+        }),
+      });
+      setFabricCanvas(canvas)
+
+      addNames()
+      addFabricQuote()
+      canvas.renderAndReset()
+      canvas.on('object:modified', saveStateToLocalStorage);
+    }
+
+    const addFabricQuote = () => {
+      const fabricCanvas = getFabricCanvas()
+      setText("Testing")
+      const text = getText()
+      if (!fabricCanvas) return
+
+
+      setFabricQuote( new FabricText(text, {
+        fontSize: 32,
+        fontWeight: "bold",
+        selectable: false,
+        hasControls: false,
+        top: fabricCanvas.height - 55,
+      }))
+
+      const fabricQuote = getFabricQuote()
+      if (!fabricQuote) return
+      fabricCanvas.add(fabricQuote)
+      fabricCanvas.centerObjectH(fabricQuote)
+    }
+
+    const addNames = () => {
+      const fabricCanvas = getFabricCanvas()
+      if (!fabricCanvas) return
+      const fabricTextObject = new FabricText(`${firstPartnerName} & ${secondPartnerName}`, {
+        fontSize: 32,
+        fontWeight: "bold",
+        lockMovementX: true,
+        lockMovementY: true,
+        lockRotation: true,
+        lockScalingX: true,
+        lockScalingY: true,
+        lockUniScaling: true,
+        lockScalingFlip: true,
+        lockSkewingX: true,
+        lockSkewingY: true,
+        selectable: false,
+        hasControls: false,
+        left: 100,
+        top: 10,
+      })
+
+      fabricCanvas.add(fabricTextObject)
+      fabricCanvas.centerObjectH(fabricTextObject)
     }
 
     const isSavedVersion = () => {
@@ -140,16 +212,17 @@ export default function CanvasContainer() {
     }
 
     backgroundImageElement.onload = async () => {
+      const fabricCanvas = getFabricCanvas()
       console.log("Onload firing")
-      if (!fabricCanvasRef.current) {
+      if (!fabricCanvas) {
         initFabricCanvas();
       }
 
-      if (isSavedVersion()) {
+      if (isSavedVersion() && fabricCanvas) {
         const storageItem = localStorage.getItem(`canvas-${index}`)
-        if (!fabricCanvasRef.current || !storageItem) return
+        if (!fabricCanvas || !storageItem) return
 
-        await fabricCanvasRef.current.loadFromJSON(storageItem).then((canvas: any) => {
+        await fabricCanvas.loadFromJSON(storageItem).then((canvas: any) => {
           canvas.requestRenderAll();
         })
       }
@@ -160,22 +233,6 @@ export default function CanvasContainer() {
     };
   }, [pathname]);
 
-  const months = [
-    "Janurary",
-    "Feburary",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December"
-  ]
-
-  const month = months[index]
 
   return (
     <div className='grid calendar-container h-screen'>

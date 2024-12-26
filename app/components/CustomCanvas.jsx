@@ -5,7 +5,7 @@ export default function CustomCanvas({containerRef, canvasRef}) {
       className="relative w-full h-full "
     >
       <div className="relative">
-        <canvas className='' ref={canvasRef} />
+        <canvas className='' id="fabric-canvas" ref={canvasRef} />
       </div>
     </div>
   )
