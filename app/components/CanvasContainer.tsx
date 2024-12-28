@@ -40,11 +40,16 @@ export default function CanvasContainer() {
   const getFabricNames = usePartnerStore((state) => state.getFabricNames)
   const setFabricNames = usePartnerStore((state) => state.setFabricNames)
 
+
   const pathname = usePathname();
 
   const firstPartnerName = usePartnerStore((state) => state.firstPartner)
   const secondPartnerName = usePartnerStore((state) => state.secondPartner)
-  const backgroundImage = useCalendarStore((state) => state.monthlySettings[month].monthTheme)
+  const backgroundTheme = useCalendarStore((state) => state.monthlySettings[month].monthTheme)
+
+  const setBackgroundImageElement = useCalendarStore((state) => state.setBackgroundImageElement)
+  const getBackgroundImageElement = useCalendarStore((state) => state.getBackgroundImageElement)
+
 
 
   const handleImageUpload = (res: ClientUploadedFileData<{ uploadedBy: string }>[]) => {
@@ -130,10 +135,13 @@ export default function CanvasContainer() {
     const containerWidth = containerElement.clientWidth;
     const containerHeight = containerElement.clientHeight;
 
-    const backgroundImageElement = new Image(BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
-    backgroundImageElement.src = backgroundImage
-
-
+    let backgroundImageElement = getBackgroundImageElement()
+    if (!backgroundImageElement) {
+      setBackgroundImageElement(new Image(BACKGROUND_WIDTH, BACKGROUND_HEIGHT))
+      backgroundImageElement = getBackgroundImageElement()
+    };
+    if (!backgroundImageElement) return
+    backgroundImageElement.src = backgroundTheme
 
     const disposeCanvas = () => {
       const fabricCanvas = getFabricCanvas()
@@ -143,23 +151,21 @@ export default function CanvasContainer() {
     }
 
     const initFabricCanvas = () => {
-      const fabricCanvas = getFabricCanvas()
-      if (fabricCanvas) return
-
-      const canvas = new Canvas(canvasElement, {
+      let fabricCanvas = getFabricCanvas()
+      setFabricCanvas(new Canvas(canvasElement, {
         width: containerWidth,
         height: containerHeight,
         backgroundImage: new FabricImage(backgroundImageElement, {
           scaleX: containerWidth / BACKGROUND_WIDTH,
           scaleY: containerHeight / BACKGROUND_HEIGHT,
         }),
-      });
-      setFabricCanvas(canvas)
+      }));
+      fabricCanvas = getFabricCanvas()
 
       addNames()
       addFabricQuote()
-      canvas.renderAndReset()
-      canvas.on('object:modified', saveStateToLocalStorage);
+      fabricCanvas?.requestRenderAll()
+      fabricCanvas?.on('object:modified', saveStateToLocalStorage);
     }
 
     const addFabricQuote = () => {
@@ -189,15 +195,6 @@ export default function CanvasContainer() {
       setFabricNames(new FabricText(`${firstPartnerName} & ${secondPartnerName}`, {
         fontSize: 32,
         fontWeight: "bold",
-        lockMovementX: true,
-        lockMovementY: true,
-        lockRotation: true,
-        lockScalingX: true,
-        lockScalingY: true,
-        lockUniScaling: true,
-        lockScalingFlip: true,
-        lockSkewingX: true,
-        lockSkewingY: true,
         selectable: false,
         hasControls: false,
         left: 100,
@@ -211,26 +208,26 @@ export default function CanvasContainer() {
       fabricCanvas.centerObjectH(fabricNames)
     }
 
-    const isSavedVersion = () => {
-      const localCanvas = localStorage.getItem(`canvas-${index}`);
-      return !!localCanvas
-    }
 
     backgroundImageElement.onload = async () => {
       const fabricCanvas = getFabricCanvas()
       console.log("Onload firing")
-      if (!fabricCanvas) {
-        initFabricCanvas();
-      }
+      initFabricCanvas();
 
-      if (isSavedVersion() && fabricCanvas) {
-        const storageItem = localStorage.getItem(`canvas-${index}`)
-        if (!fabricCanvas || !storageItem) return
+      // const isSavedVersion = () => {
+      //   const localCanvas = localStorage.getItem(`canvas-${index}`);
+      //   return !!localCanvas
+      // }
 
-        await fabricCanvas.loadFromJSON(storageItem).then((canvas: any) => {
-          canvas.requestRenderAll();
-        })
-      }
+      // if (isSavedVersion() && fabricCanvas) {
+      //   const storageItem = localStorage.getItem(`canvas-${index}`)
+      //   if (!fabricCanvas || !storageItem) return
+
+      //   await fabricCanvas.loadFromJSON(storageItem)
+      // }
+
+      fabricCanvas?.requestRenderAll();
+
     }
 
     return () => {

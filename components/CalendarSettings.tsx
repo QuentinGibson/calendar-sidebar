@@ -38,7 +38,6 @@ export default function CalendarSettings() {
     'Sky',
    ]
 
-  const settings = useCalendarStore((state) => state.monthlySettings)
   const currentTheme = useCalendarStore((state) => state.monthlySettings[month].monthTheme)
   const onThemeChange = useCalendarStore((state) => state.setMonthlyTheme)
 
@@ -62,7 +61,7 @@ export default function CalendarSettings() {
           onValueChange={(value: (keyof typeof BackgroundTemplates)) => onThemeChange(value, months[monthIndex])}
         >
           <SelectTrigger id="startMonth">
-            <SelectValue placeholder="Select month theme" defaultValue={settings[months[monthIndex]].monthTheme} />
+            <SelectValue placeholder="Select month theme" defaultValue={currentTheme} />
           </SelectTrigger>
           <SelectContent>
             {backgroundColors.map((color) => (

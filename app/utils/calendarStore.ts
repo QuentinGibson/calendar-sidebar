@@ -4,6 +4,9 @@ import { create } from "zustand";
 
 interface CalendarStore {
   coverTheme: string;
+  backgroundImageElement: HTMLImageElement | null;
+  getBackgroundImageElement: () => HTMLImageElement | null;
+  setBackgroundImageElement: (image: HTMLImageElement) => void;
   monthlySettings: { [key: string]: MonthlyCalendarSettings };
   fabricCanvas: Canvas | null;
   setFabricCanvas: (canvas: Canvas) => void;
@@ -36,6 +39,9 @@ export enum BackgroundTemplates {
 export const useCalendarStore = create<CalendarStore>((set, get) => ({
   customQuote: "I Love You",
   fabricCanvas: null,
+  backgroundImageElement: null,
+  setBackgroundImageElement: (image: HTMLImageElement) => set({ backgroundImageElement: image }),
+  getBackgroundImageElement: () => get().backgroundImageElement,
   setFabricCanvas: (fabricCanvas: Canvas) => set({ fabricCanvas: fabricCanvas }),
   getFabricCanvas: () => get().fabricCanvas,
   coverTheme: "default",
@@ -79,7 +85,14 @@ export const useCalendarStore = create<CalendarStore>((set, get) => ({
       monthTheme: BackgroundTemplates.DarkBlue,
     },
   },
-  setMonthlyTheme: (value: (keyof typeof BackgroundTemplates), month: string) => set((state) => ({
-    monthlySettings: Object.assign({}, state.monthlySettings, { [month]: { monthTheme: BackgroundTemplates[value] } })
-  }))
+  setMonthlyTheme: (value: (keyof typeof BackgroundTemplates), month: string) => {
+    set((state) => ({
+      monthlySettings: Object.assign({}, state.monthlySettings, { [month]: { monthTheme: BackgroundTemplates[value] } })
+    }))
+    const fabricCanvas = get().getFabricCanvas()
+    if(!fabricCanvas) return
+    const backgroundImageElement = get().getBackgroundImageElement()
+    if (!backgroundImageElement) return
+    backgroundImageElement.src = BackgroundTemplates[value]
+  }
 }));
