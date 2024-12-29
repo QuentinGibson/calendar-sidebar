@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from 'react';
 import CustomCanvas from './CustomCanvas';
-import { useParams, usePathname } from 'next/navigation';
 import { Canvas, FabricImage, FabricText } from 'fabric';
 import CanvasMenu from './CanvasMenu';
 import CanvasFooter from './CanvasFooter';
@@ -11,18 +10,17 @@ import { ClientUploadedFileData } from 'uploadthing/types';
 import { useCalendarStore } from '../utils/calendarStore';
 import { useQuoteStore } from '../utils/quoteStore';
 import { usePartnerStore } from '../utils/usePartnerStore';
+import { backgrounds, useBackgroundStore } from '../utils/backgroundStore';
+import { months } from '../utils/helpers';
 
 const BACKGROUND_WIDTH = 1872;
 const BACKGROUND_HEIGHT = 1570;
 
 
 export default function CanvasContainer() {
-  const params = useParams()
-  const monthStr = params.month as string
-  const index = parseInt(monthStr)
+  const monthIndex = useCalendarStore(state => state.month)
 
-  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  const month = months[index]
+  const month = months[monthIndex]
 
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -40,12 +38,9 @@ export default function CanvasContainer() {
   const getFabricNames = usePartnerStore((state) => state.getFabricNames)
   const setFabricNames = usePartnerStore((state) => state.setFabricNames)
 
-
-  const pathname = usePathname();
-
   const firstPartnerName = usePartnerStore((state) => state.firstPartner)
   const secondPartnerName = usePartnerStore((state) => state.secondPartner)
-  const backgroundTheme = useCalendarStore((state) => state.monthlySettings[month].monthTheme)
+  const backgroundColor = useBackgroundStore((state) => state.getMonthBackground(monthIndex))
 
   const setBackgroundImageElement = useCalendarStore((state) => state.setBackgroundImageElement)
   const getBackgroundImageElement = useCalendarStore((state) => state.getBackgroundImageElement)
@@ -63,8 +58,6 @@ export default function CanvasContainer() {
     const imgElement = new Image()
 
     imgElement.src = uploadedImage.appUrl
-
-
 
     /**
      * After the image is loaded, create a new fabric image layer and
@@ -99,22 +92,22 @@ export default function CanvasContainer() {
     const fabricCanvas = getFabricCanvas()
     if (!fabricCanvas) return
     localStorage.setItem(
-      `canvas-${index}`,
+      `canvas-${monthIndex}`,
       JSON.stringify(fabricCanvas.toJSON())
     );
   }
 
-  const deleteAllLocalStorage = () => {
-    localStorage.clear()
-    window.location.reload()
-  }
+  // const deleteAllLocalStorage = () => {
+  //   localStorage.clear()
+  //   window.location.reload()
+  // }
 
-  const deleteIndexLocalStorage = () => {
-    const fabricCanvas = getFabricCanvas()
-    if (!fabricCanvas) return
-    localStorage.removeItem(`canvas-${index}`)
-    window.location.reload()
-  }
+  // const deleteIndexLocalStorage = () => {
+  //   const fabricCanvas = getFabricCanvas()
+  //   if (!fabricCanvas) return
+  //   localStorage.removeItem(`canvas-${monthIndex}`)
+  //   window.location.reload()
+  // }
 
   const clearImages = () => {
     const fabricCanvas = getFabricCanvas()
@@ -141,7 +134,7 @@ export default function CanvasContainer() {
       backgroundImageElement = getBackgroundImageElement()
     };
     if (!backgroundImageElement) return
-    backgroundImageElement.src = backgroundTheme
+    backgroundImageElement.src = backgrounds[backgroundColor]
 
     const disposeCanvas = () => {
       const fabricCanvas = getFabricCanvas()
@@ -233,14 +226,14 @@ export default function CanvasContainer() {
     return () => {
       disposeCanvas();
     };
-  }, [pathname]);
+  }, [monthIndex, backgroundColor]);
 
 
   return (
     <div className='grid calendar-container h-screen'>
       <CanvasMenu
         handleSave={saveStateToLocalStorage}
-        handleIndexReset={deleteIndexLocalStorage}
+        handleIndexReset={() => {console.log("To be implemented")}}
         handleFileUpload={handleImageUpload}
         handleImageRemove={clearImages}
       />
@@ -253,7 +246,7 @@ export default function CanvasContainer() {
         </div>
       </div>
       <UserOptions />
-      <CanvasFooter handleReset={deleteAllLocalStorage} />
+      <CanvasFooter handleReset={() => {console.log("To be implemented")}} />
     </div>
   )
 }
