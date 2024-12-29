@@ -1,21 +1,13 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { useCalendarStore } from './calendarStore'
 
-interface BackgroundStore {
-  monthBackgrounds: Record<number, string>
-  setMonthBackground: (month: number, background: keyof typeof backgrounds) => void
-  getMonthBackground: (month: number) => string 
-  resetMonthBackgrounds: () => void
-}
-
-
+// Define the available backgrounds
 export const backgrounds: Record<string, string> = {
   "Cool Blue": "/background/Couple Calendar Background Template Cool Blue.png",
   "Blossom": "/background/Couple Calendar Background Template Blossom.png",
   "Blue": "/background/Couple Calendar Background Template Blue.png",
   "Green": "/background/Couple Calendar Background Template Green.png",
-  "Rose":  "/background/Couple Calendar Background Template Rose.png",
+  "Rose": "/background/Couple Calendar Background Template Rose.png",
   "Candy": "/background/Couple Calendar Background Template Candy.png",
   "Brown": "/background/Couple Calendar Background Template Brown.png",
   "Clover": "/background/Couple Calendar Background Template Clover.png",
@@ -28,6 +20,7 @@ export const backgrounds: Record<string, string> = {
   "Orange": "/background/Couple Calendar Background Template Orange.png"
 }
 
+// Define the default backgrounds for each month
 const defaultBackgrounds: Record<number, string> = {
   0: "Cool Blue",
   1: "Blossom",
@@ -43,18 +36,23 @@ const defaultBackgrounds: Record<number, string> = {
   11: "Grey",
 }
 
+// Create the useBackgroundStore store using Zustand
 export const useBackgroundStore = create<BackgroundStore>()(
   persist((set, get) => ({
+    // Initial state for monthBackgrounds, setter and getter functions
     monthBackgrounds: defaultBackgrounds,
     setMonthBackground: (month: number, background: keyof typeof backgrounds) =>
       set(state => {
         const newState = Object.assign({}, state)
         newState.monthBackgrounds[month] = background
-
         return { monthBackgrounds: newState.monthBackgrounds }
       }),
     getMonthBackground: month => get().monthBackgrounds[month],
+    // Reset all month backgrounds to default
     resetMonthBackgrounds: () => set({ monthBackgrounds: defaultBackgrounds }),
-  }), { name: 'backgrounds' })
+  }),
+    // Persist the monthBackgrounds state in localStorage
+    { name: 'backgrounds' }
+  )
 )
 
