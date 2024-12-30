@@ -14,7 +14,7 @@ export default function CalendarSettings() {
   const { getMonthBackground, setMonthBackground } = useBackgroundStore()
   const { text, setText } = useQuoteStore()
 
-  const monthIndex = useCalendarStore((state) => state.getMonth)()
+  const monthIndex = useCalendarStore((state) => state.monthIndex)
 
   const background = getMonthBackground(monthIndex)
   const backgroundColors = Object.keys(backgrounds).map((background) => background)

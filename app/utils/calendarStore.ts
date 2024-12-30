@@ -1,34 +1,38 @@
 import { Canvas } from "fabric";
 import { create } from "zustand";
-
-
 interface CalendarStore {
   coverTheme: string;
-  month: number;
-  setMonth: (month: number) => void;
-  getMonth: () => number;
+  getCoverTheme: () => string;
+  setCoverTheme: (coverTheme: string) => void;
+  monthIndex: number;
+  setMonthIndex: (monthIndex: number) => void;
+  getMonthIndex: () => number;
   backgroundImageElement: HTMLImageElement | null;
   getBackgroundImageElement: () => HTMLImageElement | null;
-  setBackgroundImageElement: (image: HTMLImageElement) => void;
+  setBackgroundImageElement: (backgroundImageElement: HTMLImageElement) => void;
   fabricCanvas: Canvas | null;
-  setFabricCanvas: (canvas: Canvas) => void;
+  setFabricCanvas: (fabricCanvas: Canvas) => void;
   getFabricCanvas: () => Canvas | null;
 }
 
-
-
 export const useCalendarStore = create<CalendarStore>((set, get) => ({
-  customQuote: "I Love You",
+  // Initial state for fabricCanvas, setter and getter functions
   fabricCanvas: null,
-  backgroundImageElement: null,
-  month: 0,
-  setMonth: (month: number) => set({month}),
-  getMonth: () => get().month,
-  setBackgroundImageElement: (image: HTMLImageElement) => set({ backgroundImageElement: image }),
-  getBackgroundImageElement: () => get().backgroundImageElement,
-  setFabricCanvas: (fabricCanvas: Canvas) => set({ fabricCanvas: fabricCanvas }),
+  setFabricCanvas: (fabricCanvas: Canvas) => set({ fabricCanvas }),
   getFabricCanvas: () => get().fabricCanvas,
+
+  // Initial state for backgroundImageElement, setter and getter functions
+  backgroundImageElement: null,
+  setBackgroundImageElement: (backgroundImageElement: HTMLImageElement) => set({ backgroundImageElement }),
+  getBackgroundImageElement: () => get().backgroundImageElement,
+
+  // Initial state for month, setter and getter functions
+  monthIndex: 0,
+  setMonthIndex: (monthIndex: number) => set({ monthIndex }),
+  getMonthIndex: () => get().monthIndex,
+
+  // Initial state for coverTheme, getter and setter functions
   coverTheme: "default",
-  firstPartnerName: "First Partner",
-  secondPartnerName: "Second Partner",
+  setCoverTheme: (coverTheme: string) => set({ coverTheme }),
+  getCoverTheme: () => get().coverTheme,
 }));

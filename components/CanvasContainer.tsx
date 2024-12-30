@@ -1,34 +1,30 @@
 "use client"
 
 import { useEffect, useRef } from 'react';
-import CustomCanvas from './CustomCanvas';
 import { Canvas, FabricImage, FabricText } from 'fabric';
-import CanvasMenu from './CanvasMenu';
-import CanvasFooter from './CanvasFooter';
-import UserOptions from './UserOptions';
+import CanvasMenu from '@/components/CanvasMenu';
+import CanvasFooter from '@/components/CanvasFooter';
+import UserOptions from '@/components/UserOptions';
 import { ClientUploadedFileData } from 'uploadthing/types';
-import { useCalendarStore } from '../utils/calendarStore';
-import { useQuoteStore } from '../utils/quoteStore';
-import { usePartnerStore } from '../utils/usePartnerStore';
-import { backgrounds, useBackgroundStore } from '../utils/backgroundStore';
-import { months } from '../utils/helpers';
+import { useCalendarStore } from '@/app/utils/calendarStore';
+import { useQuoteStore } from '@/app/utils/quoteStore';
+import { usePartnerStore } from '@/app/utils/usePartnerStore';
+import { backgrounds, useBackgroundStore } from '@/app/utils/backgroundStore';
+import { months } from '@/app/utils/helpers';
 
 const BACKGROUND_WIDTH = 1872;
 const BACKGROUND_HEIGHT = 1570;
 
-
 export default function CanvasContainer() {
-  const monthIndex = useCalendarStore(state => state.month)
+  const monthIndex = useCalendarStore(state => state.monthIndex)
 
   const month = months[monthIndex]
-
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null)
 
   const setFabricCanvas = useCalendarStore((state) => state.setFabricCanvas)
   const getFabricCanvas = useCalendarStore((state) => state.getFabricCanvas)
-
 
   const getText = useQuoteStore((store) => store.getText)
   const setText = useQuoteStore((store) => store.setText)
@@ -44,8 +40,6 @@ export default function CanvasContainer() {
 
   const setBackgroundImageElement = useCalendarStore((state) => state.setBackgroundImageElement)
   const getBackgroundImageElement = useCalendarStore((state) => state.getBackgroundImageElement)
-
-
 
   const handleImageUpload = (res: ClientUploadedFileData<{ uploadedBy: string }>[]) => {
     const containerElement = containerRef.current;
@@ -113,7 +107,7 @@ export default function CanvasContainer() {
     const fabricCanvas = getFabricCanvas()
     if (!fabricCanvas) return
 
-    const fabricObjects =  fabricCanvas.getObjects("image")
+    const fabricObjects = fabricCanvas.getObjects("image")
 
     for (let object of fabricObjects) {
       fabricCanvas.remove(object)
@@ -168,7 +162,7 @@ export default function CanvasContainer() {
       if (!fabricCanvas) return
 
 
-      setFabricQuote( new FabricText(text, {
+      setFabricQuote(new FabricText(text, {
         fontSize: 32,
         fontWeight: "bold",
         selectable: false,
@@ -233,7 +227,7 @@ export default function CanvasContainer() {
     <div className='grid calendar-container h-screen'>
       <CanvasMenu
         handleSave={saveStateToLocalStorage}
-        handleIndexReset={() => {console.log("To be implemented")}}
+        handleIndexReset={() => { console.log("To be implemented") }}
         handleFileUpload={handleImageUpload}
         handleImageRemove={clearImages}
       />
@@ -242,11 +236,18 @@ export default function CanvasContainer() {
           {month}
         </h1>
         <div className='min-h-[500px] aspect-[59/50] z-10 rounded-lg'>
-          <CustomCanvas containerRef={containerRef} canvasRef={canvasRef} />
+          <div
+            ref={containerRef}
+            className="relative w-full h-full "
+          >
+            <div className="relative">
+              <canvas className='' id="fabric-canvas" ref={canvasRef} />
+            </div>
+          </div>
         </div>
       </div>
       <UserOptions />
-      <CanvasFooter handleReset={() => {console.log("To be implemented")}} />
+      <CanvasFooter />
     </div>
   )
 }

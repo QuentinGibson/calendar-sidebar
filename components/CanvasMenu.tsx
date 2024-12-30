@@ -1,6 +1,6 @@
-import MenuButton from "@/app/components/MenuButton"
+import MenuButton from "@/components/MenuButton"
 import { Save, RotateCcw, ImageOff, ImageUp } from "lucide-react"
-import { UploadButton } from "../utils/uploadthings"
+import { UploadButton } from "../app/utils/uploadthings"
 import { ClientUploadedFileData } from "uploadthing/types"
 
 interface CanvasMenuProps {

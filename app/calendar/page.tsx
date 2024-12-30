@@ -1,17 +1,9 @@
-import Calendar from "@/app/components/CalendarPage";
-interface CalendarPageProps {
-  params: {
-    month: string
-  }
-}
-export default async function CalendarPage({params}: CalendarPageProps) {
-  const month = parseInt((await params).month)
-  if (month < 0 || month > 11) {
-    return <div>Invalid month</div>
-  }
+import CanvasContainer from "../../components/CanvasContainer";
+
+export default async function CalendarPage() {
   return (
-    <>
-      <Calendar />
-    </>
+    <div className="h-screen">
+      <CanvasContainer />
+    </div>
   )
 }

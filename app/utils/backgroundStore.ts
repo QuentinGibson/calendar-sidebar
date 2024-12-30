@@ -15,7 +15,7 @@ export const backgrounds: Record<string, string> = {
   "Cyan": "/background/Couple Calendar Background Template Cyan.png",
   "Dark Green": "/background/Couple Calendar Background Template Dark Green.png",
   "Grey": "/background/Couple Calendar Background Template Grey.png",
-  "lavendar": "/background/Couple Calendar Background Template Lavendar.png",
+  "Lavendar": "/background/Couple Calendar Background Template Lavendar.png",
   "Lime": "/background/Couple Calendar Background Template Lime.png",
   "Orange": "/background/Couple Calendar Background Template Orange.png"
 }
